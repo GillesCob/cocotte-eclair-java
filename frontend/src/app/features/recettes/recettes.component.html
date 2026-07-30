@@ -1,0 +1,23 @@
+<div class="recettes-page">
+  <header>
+    <h1>Mes recettes</h1>
+    <button type="button" (click)="logout()">Se déconnecter</button>
+  </header>
+
+  @if (isLoading()) {
+    <p>Chargement...</p>
+  } @else if (recettes().length === 0) {
+    <p>Aucune recette pour l'instant.</p>
+  } @else {
+    <ul>
+      @for (recette of recettes(); track recette.id) {
+        <li>
+          <strong>{{ recette.titre }}</strong>
+          @if (recette.estRecetteDeBase) {
+            <span class="badge">Recette de base</span>
+          }
+        </li>
+      }
+    </ul>
+  }
+</div>
