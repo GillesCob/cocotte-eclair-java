@@ -1,8 +1,12 @@
+:host {
+  display: contents;
+}
+
 .register-page {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 100dvh;
+  flex: 1;
   padding: 0 1rem;
 }
 

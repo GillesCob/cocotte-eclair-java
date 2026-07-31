@@ -1,8 +1,12 @@
+:host {
+  display: contents;
+}
+
 .nouvelle-recette-page {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 100dvh;
+  flex: 1;
   padding: 2rem 1rem;
 }
 

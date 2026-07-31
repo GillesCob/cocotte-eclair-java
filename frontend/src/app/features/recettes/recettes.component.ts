@@ -1,8 +1,7 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RecetteService, IRecette } from '../../core/recette.service';
-import { AuthService } from '../../core/auth.service';
-import { Router, RouterLink } from '@angular/router';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-recettes',
@@ -15,11 +14,7 @@ export class RecettesComponent implements OnInit {
   readonly recettes = signal<IRecette[]>([]);
   readonly isLoading = signal(true);
 
-  constructor(
-    private recetteService: RecetteService,
-    private authService: AuthService,
-    private router: Router
-  ) {}
+  constructor(private recetteService: RecetteService) {}
 
   ngOnInit(): void {
     this.recetteService.findAll().subscribe({
@@ -29,10 +24,5 @@ export class RecettesComponent implements OnInit {
       },
       error: () => this.isLoading.set(false)
     });
-  }
-
-  logout(): void {
-    this.authService.logout();
-    this.router.navigate(['/connexion']);
   }
 }
