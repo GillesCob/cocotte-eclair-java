@@ -2,7 +2,15 @@ import { Routes } from '@angular/router';
 import { authGuard } from './core/auth.guard';
 
 export const routes: Routes = [
-  { path: '', redirectTo: 'recettes', pathMatch: 'full' },
+  {
+    path: '',
+    loadComponent: () => import('./features/landing/landing.component').then((m) => m.LandingComponent)
+  },
+  {
+    path: 'recettes-publiques',
+    loadComponent: () =>
+      import('./features/recettes-publiques/recettes-publiques.component').then((m) => m.RecettesPubliquesComponent)
+  },
   {
     path: 'connexion',
     loadComponent: () => import('./features/login/login.component').then((m) => m.LoginComponent)
