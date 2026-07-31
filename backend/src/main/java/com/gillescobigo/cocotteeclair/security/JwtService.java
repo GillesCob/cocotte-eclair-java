@@ -42,10 +42,20 @@ public class JwtService {
         return generate(userId, refreshKey, refreshTtl);
     }
 
+    public Duration getRefreshTtl() {
+        return refreshTtl;
+    }
+
     private String generate(UUID userId, SecretKey key, Duration ttl) {
         Instant now = Instant.now();
         return Jwts.builder()
                 .subject(userId.toString())
+                // jti (id) aleatoire : sans lui, deux tokens emis pour le meme
+                // utilisateur dans la meme seconde (iat/exp identiques a la seconde
+                // pres) produisent le meme JWT signe, donc le meme hash stocke en
+                // base -> collision sur la contrainte d'unicite de refresh_tokens.
+                // Constate en verification manuelle (register puis refresh immediat).
+                .id(UUID.randomUUID().toString())
                 .issuedAt(Date.from(now))
                 .expiration(Date.from(now.plus(ttl)))
                 .signWith(key)

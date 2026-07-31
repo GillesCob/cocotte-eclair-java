@@ -16,7 +16,10 @@ export class NavbarComponent {
   ) {}
 
   logout(): void {
-    this.authService.logout();
-    this.router.navigate(['/connexion']);
+    // logout() vide l'etat local dans tous les cas (succes ou echec de l'appel
+    // reseau, cf auth.service.ts), la navigation peut donc toujours suivre.
+    this.authService.logout().subscribe(() => {
+      this.router.navigate(['/connexion']);
+    });
   }
 }

@@ -1,32 +1,50 @@
 import { Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, tap } from 'rxjs';
+import { Observable, catchError, map, of, tap } from 'rxjs';
 import { environment } from '../../environments/environment';
 
-interface IAuthResponse {
+interface IAccessTokenResponse {
   accessToken: string;
-  refreshToken: string;
 }
 
-const ACCESS_TOKEN_KEY = 'cocotte_access_token';
-const REFRESH_TOKEN_KEY = 'cocotte_refresh_token';
+// En-tete requis sur /refresh et /logout : ces deux routes s'appuient sur le
+// cookie httpOnly (SameSite=Lax), contrairement aux autres appels qui utilisent le
+// header Authorization. Ce header custom, combine a SameSite=Lax et a la politique
+// CORS stricte du backend, sert de defense CSRF en profondeur sur ces deux routes
+// (cf SecurityConfig/CsrfHeaderCheckFilter/RefreshCookieFactory cote backend).
+const CSRF_HEADER = { 'X-Requested-With': 'XMLHttpRequest' };
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  readonly isAuthenticated = signal<boolean>(!!localStorage.getItem(ACCESS_TOKEN_KEY));
+  // L'access token n'est jamais persiste (ni localStorage, ni sessionStorage) :
+  // garde uniquement en memoire JS, reconstitue au demarrage de l'app via
+  // initializeSession() qui s'appuie sur le refresh token en cookie httpOnly.
+  private accessToken: string | null = null;
+
+  readonly isAuthenticated = signal<boolean>(false);
 
   constructor(private http: HttpClient) {}
 
-  login(email: string, password: string): Observable<IAuthResponse> {
+  login(email: string, password: string): Observable<void> {
     return this.http
-      .post<IAuthResponse>(`${environment.apiUrl}/auth/login`, { email, password })
-      .pipe(tap((response) => this.storeTokens(response)));
+      .post<IAccessTokenResponse>(`${environment.apiUrl}/auth/login`, { email, password }, { withCredentials: true })
+      .pipe(
+        tap((response) => this.setSession(response.accessToken)),
+        map(() => undefined)
+      );
   }
 
-  register(email: string, password: string): Observable<IAuthResponse> {
+  register(email: string, password: string): Observable<void> {
     return this.http
-      .post<IAuthResponse>(`${environment.apiUrl}/auth/register`, { email, password })
-      .pipe(tap((response) => this.storeTokens(response)));
+      .post<IAccessTokenResponse>(
+        `${environment.apiUrl}/auth/register`,
+        { email, password },
+        { withCredentials: true }
+      )
+      .pipe(
+        tap((response) => this.setSession(response.accessToken)),
+        map(() => undefined)
+      );
   }
 
   forgotPassword(email: string): Observable<void> {
@@ -37,23 +55,55 @@ export class AuthService {
     return this.http.post<void>(`${environment.apiUrl}/auth/reset-password`, { token, newPassword });
   }
 
-  logout(): void {
-    localStorage.removeItem(ACCESS_TOKEN_KEY);
-    localStorage.removeItem(REFRESH_TOKEN_KEY);
-    this.isAuthenticated.set(false);
+  // Appelee une seule fois au demarrage de l'app (provideAppInitializer, cf
+  // app.config.ts) : tente de reconstituer la session depuis le cookie refresh,
+  // sans jamais faire echouer le demarrage de l'app si ca ne marche pas (VPS
+  // injoignable, pas de session existante...). Resout toujours, ne propage jamais
+  // d'erreur.
+  initializeSession(): Observable<boolean> {
+    return this.refreshAccessToken().pipe(
+      map(() => true),
+      catchError(() => {
+        this.clearSession();
+        return of(false);
+      })
+    );
+  }
+
+  refreshAccessToken(): Observable<string> {
+    return this.http
+      .post<IAccessTokenResponse>(
+        `${environment.apiUrl}/auth/refresh`,
+        {},
+        { withCredentials: true, headers: CSRF_HEADER }
+      )
+      .pipe(
+        tap((response) => this.setSession(response.accessToken)),
+        map((response) => response.accessToken)
+      );
+  }
+
+  logout(): Observable<void> {
+    return this.http
+      .post<void>(`${environment.apiUrl}/auth/logout`, {}, { withCredentials: true, headers: CSRF_HEADER })
+      .pipe(
+        map(() => undefined),
+        catchError(() => of(undefined)),
+        tap(() => this.clearSession())
+      );
   }
 
   getAccessToken(): string | null {
-    return localStorage.getItem(ACCESS_TOKEN_KEY);
+    return this.accessToken;
   }
 
-  getRefreshToken(): string | null {
-    return localStorage.getItem(REFRESH_TOKEN_KEY);
-  }
-
-  private storeTokens(response: IAuthResponse): void {
-    localStorage.setItem(ACCESS_TOKEN_KEY, response.accessToken);
-    localStorage.setItem(REFRESH_TOKEN_KEY, response.refreshToken);
+  private setSession(accessToken: string): void {
+    this.accessToken = accessToken;
     this.isAuthenticated.set(true);
+  }
+
+  private clearSession(): void {
+    this.accessToken = null;
+    this.isAuthenticated.set(false);
   }
 }
