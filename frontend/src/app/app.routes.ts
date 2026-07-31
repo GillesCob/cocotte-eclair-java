@@ -20,6 +20,16 @@ export const routes: Routes = [
     loadComponent: () => import('./features/register/register.component').then((m) => m.RegisterComponent)
   },
   {
+    path: 'forgot-password',
+    loadComponent: () =>
+      import('./features/forgot-password/forgot-password.component').then((m) => m.ForgotPasswordComponent)
+  },
+  {
+    path: 'reset-password',
+    loadComponent: () =>
+      import('./features/reset-password/reset-password.component').then((m) => m.ResetPasswordComponent)
+  },
+  {
     path: 'recettes',
     loadComponent: () => import('./features/recettes/recettes.component').then((m) => m.RecettesComponent),
     canActivate: [authGuard]
