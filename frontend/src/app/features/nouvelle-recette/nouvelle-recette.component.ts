@@ -1,5 +1,4 @@
 import { Component, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { RecetteService } from '../../core/recette.service';
@@ -7,7 +6,7 @@ import { RecetteService } from '../../core/recette.service';
 @Component({
   selector: 'app-nouvelle-recette',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink],
   templateUrl: './nouvelle-recette.component.html',
   styleUrl: './nouvelle-recette.component.scss'
 })

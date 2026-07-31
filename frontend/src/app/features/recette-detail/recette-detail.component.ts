@@ -1,5 +1,4 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { IEtape, IRecette, IRecetteIngredient, IUnite, RecetteService } from '../../core/recette.service';
@@ -18,7 +17,7 @@ const UNITE_LABELS: Record<IUnite, string> = {
 @Component({
   selector: 'app-recette-detail',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink],
   templateUrl: './recette-detail.component.html',
   styleUrl: './recette-detail.component.scss'
 })

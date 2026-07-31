@@ -7,13 +7,13 @@
   </header>
 
   @if (isLoading()) {
-    <p>Chargement...</p>
+    <div class="loading-state"><span class="spinner"></span></div>
   } @else if (recettes().length === 0) {
     <p class="empty-state">Aucune recette pour l'instant.</p>
   } @else {
     <ul>
       @for (recette of recettes(); track recette.id) {
-        <li>
+        <li class="list-item">
           <a [routerLink]="['/recettes', recette.id]">
             <strong>{{ recette.titre }}</strong>
             @if (recette.estRecetteDeBase) {

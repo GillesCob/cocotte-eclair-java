@@ -3,6 +3,13 @@
     display: inline-block;
     margin-bottom: 1rem;
     font-size: 0.875rem;
+    color: #6b7280;
+    text-decoration: none;
+
+    &:hover {
+      color: var(--accent);
+      text-decoration: underline;
+    }
   }
 
   header {
@@ -23,14 +30,6 @@
       color: #555;
       margin: 0.25rem 0;
     }
-  }
-
-  .badge {
-    font-size: 0.75rem;
-    color: var(--accent);
-    border: 1px solid var(--accent);
-    border-radius: 999px;
-    padding: 0.125rem 0.5rem;
   }
 
   section {
@@ -72,6 +71,10 @@
       color: #dc2626;
       font-size: 0.8rem;
       cursor: pointer;
+
+      &:hover {
+        text-decoration: underline;
+      }
     }
   }
 
@@ -80,14 +83,6 @@
     flex-wrap: wrap;
     gap: 0.5rem;
     align-items: center;
-
-    input,
-    select {
-      font-size: 16px;
-      padding: 0.5rem 0.6rem;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-    }
 
     input[type='number'] {
       width: 6rem;

@@ -1,6 +1,6 @@
 <div class="page recette-detail-page">
   @if (isLoading()) {
-    <p>Chargement...</p>
+    <div class="loading-state"><span class="spinner"></span></div>
   } @else if (!recette()) {
     <p>Recette introuvable.</p>
   } @else {
