@@ -7,8 +7,188 @@
   box-sizing: border-box;
 }
 
+:root {
+  --accent: #d97706;
+}
+
 html,
 body {
   margin: 0;
   height: 100%;
+}
+
+/* Fond sobre commun à toute l'app, jamais blanc pur : un gris très clair légèrement
+   teinté par la couleur d'accent (donc par le logo, cf --accent), pour rester discret
+   tout en restant "de la marque". Formule réutilisable pour toute V1 : mélanger
+   quelques % de --accent dans un gris neutre, jamais choisir une teinte au jugé. */
+body {
+  background: color-mix(in srgb, var(--accent) 4%, #f9fafb);
+}
+
+/* Boutons partagés par toute l'app : toute action sur une page (pas une simple navigation
+   entre deux écrans miroirs) doit utiliser ces classes, jamais un style de bouton unitaire
+   redéfini par composant. */
+.btn {
+  display: inline-block;
+  padding: 0.625rem 1.5rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  font-family: inherit;
+  text-decoration: none;
+  text-align: center;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: background-color 0.15s;
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.btn-primary {
+  background: #d97706;
+  color: white;
+  border-color: #d97706;
+
+  &:hover:not(:disabled) {
+    background: #b45f04;
+  }
+}
+
+.btn-outline {
+  background: transparent;
+  color: #374151;
+  border-color: #d1d5db;
+
+  &:hover:not(:disabled) {
+    background: white;
+  }
+}
+
+.btn-block {
+  display: block;
+  width: 100%;
+}
+
+.btn-sm {
+  padding: 0.5rem 0.9rem;
+  font-size: 0.8125rem;
+}
+
+/* Page de contenu "normale" (pas un formulaire centré) : largeur max, centrée
+   horizontalement, padding sur les 4 côtés pour ne jamais toucher le bord de
+   l'écran. Un seul endroit à modifier, comme .form-page/.form-card ci-dessous. */
+.page {
+  width: 100%;
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 1.5rem 1rem;
+}
+
+/* Carte de formulaire unique, partagée par tout écran de ce type (connexion, inscription,
+   mot de passe oublié, réinitialisation, ajout de recette...). Un seul endroit à modifier
+   pour faire évoluer ce design partout, jamais une redéfinition par page. */
+.form-page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  padding: 2rem 1rem;
+}
+
+.form-card {
+  width: 100%;
+  max-width: 28rem;
+  background: rgba(255, 255, 255, 0.92);
+  border-radius: 1rem;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  padding: 2rem;
+
+  h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #111827;
+    margin: 0 0 0.5rem;
+  }
+
+  .subtitle {
+    font-size: 0.875rem;
+    color: #6b7280;
+    margin: 0 0 2rem;
+  }
+
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+  label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #374151;
+    margin-bottom: 0.25rem;
+  }
+
+  input,
+  textarea,
+  select {
+    width: 100%;
+    font-size: 16px;
+    padding: 0.625rem 1rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.5rem;
+    font-family: inherit;
+
+    &:focus {
+      outline: none;
+      border-color: #d97706;
+      box-shadow: 0 0 0 2px rgba(217, 119, 6, 0.2);
+    }
+  }
+
+  textarea {
+    resize: vertical;
+  }
+
+  .error {
+    color: #dc2626;
+    font-size: 0.75rem;
+    margin: 0;
+  }
+
+  .field-hint {
+    margin: 0.25rem 0 0;
+    font-size: 0.75rem;
+
+    a {
+      color: #d97706;
+      text-decoration: none;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+
+  .bottom-link {
+    margin-top: 1.5rem;
+    text-align: center;
+    font-size: 0.875rem;
+    color: #6b7280;
+
+    a {
+      color: #d97706;
+      font-weight: 500;
+      text-decoration: none;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
 }

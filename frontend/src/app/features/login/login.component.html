@@ -1,5 +1,5 @@
-<div class="login-page">
-  <div class="login-card">
+<div class="form-page login-page">
+  <div class="form-card login-card">
     <h1>Connexion</h1>
     <p class="subtitle">Accédez à votre espace CocotteEclair</p>
 
@@ -25,7 +25,7 @@
         <p class="error">{{ errorMessage() }}</p>
       }
 
-      <button type="submit" [disabled]="form.invalid || isSubmitting()">
+      <button type="submit" class="btn btn-primary btn-block" [disabled]="form.invalid || isSubmitting()">
         {{ isSubmitting() ? 'Connexion...' : 'Se connecter' }}
       </button>
     </form>

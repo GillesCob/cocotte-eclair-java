@@ -1,4 +1,4 @@
-<div class="recette-detail-page">
+<div class="page recette-detail-page">
   @if (isLoading()) {
     <p>Chargement...</p>
   } @else if (!recette()) {
@@ -38,7 +38,7 @@
             <option [value]="option.value">{{ option.label }}</option>
           }
         </select>
-        <button type="submit" [disabled]="ingredientForm.invalid || isAddingIngredient()">
+        <button type="submit" class="btn btn-primary btn-sm" [disabled]="ingredientForm.invalid || isAddingIngredient()">
           {{ isAddingIngredient() ? 'Ajout...' : 'Ajouter' }}
         </button>
       </form>
@@ -73,7 +73,7 @@
         <input type="number" formControlName="ordre" placeholder="N°" min="1" />
         <input type="text" formControlName="description" placeholder="Description de l'étape" />
         <input type="number" formControlName="tempsCuissonMinutes" placeholder="Temps (min, optionnel)" min="1" />
-        <button type="submit" [disabled]="etapeForm.invalid || isAddingEtape()">
+        <button type="submit" class="btn btn-primary btn-sm" [disabled]="etapeForm.invalid || isAddingEtape()">
           {{ isAddingEtape() ? 'Ajout...' : 'Ajouter' }}
         </button>
       </form>

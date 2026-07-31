@@ -1,6 +1,6 @@
-import { Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
-import { AuthService } from './core/auth.service';
+import { Component, inject, signal } from '@angular/core';
+import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
+import { filter } from 'rxjs';
 import { NavbarComponent } from './shared/navbar/navbar.component';
 import { FooterComponent } from './shared/footer/footer.component';
 
@@ -11,5 +11,13 @@ import { FooterComponent } from './shared/footer/footer.component';
   styleUrl: './app.component.scss'
 })
 export class AppComponent {
-  constructor(public authService: AuthService) {}
+  private readonly router = inject(Router);
+
+  readonly isLandingRoute = signal(this.router.url === '/');
+
+  constructor() {
+    this.router.events.pipe(filter((event) => event instanceof NavigationEnd)).subscribe(() => {
+      this.isLandingRoute.set(this.router.url === '/');
+    });
+  }
 }

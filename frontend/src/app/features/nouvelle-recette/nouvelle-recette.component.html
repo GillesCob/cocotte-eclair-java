@@ -1,27 +1,35 @@
-<div class="nouvelle-recette-page">
-  <form class="nouvelle-recette-card" [formGroup]="form" (ngSubmit)="onSubmit()">
+<div class="form-page nouvelle-recette-page">
+  <div class="form-card nouvelle-recette-card">
     <h1>Nouvelle recette</h1>
 
-    <label for="titre">Titre</label>
-    <input id="titre" type="text" formControlName="titre" autocomplete="off" />
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+      <div>
+        <label for="titre">Titre</label>
+        <input id="titre" type="text" formControlName="titre" autocomplete="off" />
+      </div>
 
-    <label for="description">Description</label>
-    <textarea id="description" formControlName="description" rows="4"></textarea>
+      <div>
+        <label for="description">Description</label>
+        <textarea id="description" formControlName="description" rows="4"></textarea>
+      </div>
 
-    <label for="visibilite">Visibilité</label>
-    <select id="visibilite" formControlName="visibilite">
-      <option value="PRIVEE">Privée</option>
-      <option value="PUBLIQUE">Publique</option>
-    </select>
+      <div>
+        <label for="visibilite">Visibilité</label>
+        <select id="visibilite" formControlName="visibilite">
+          <option value="PRIVEE">Privée</option>
+          <option value="PUBLIQUE">Publique</option>
+        </select>
+      </div>
 
-    @if (errorMessage()) {
-      <p class="error">{{ errorMessage() }}</p>
-    }
+      @if (errorMessage()) {
+        <p class="error">{{ errorMessage() }}</p>
+      }
 
-    <button type="submit" [disabled]="form.invalid || isSubmitting()">
-      {{ isSubmitting() ? 'Création...' : 'Créer la recette' }}
-    </button>
+      <button type="submit" class="btn btn-primary btn-block" [disabled]="form.invalid || isSubmitting()">
+        {{ isSubmitting() ? 'Création...' : 'Créer la recette' }}
+      </button>
+    </form>
 
-    <a routerLink="/recettes">Annuler</a>
-  </form>
+    <p class="bottom-link"><a routerLink="/recettes">Annuler</a></p>
+  </div>
 </div>

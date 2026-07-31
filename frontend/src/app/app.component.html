@@ -1,5 +1,5 @@
 <div class="app-shell">
-  @if (authService.isAuthenticated()) {
+  @if (!isLandingRoute()) {
     <app-navbar></app-navbar>
   }
 
