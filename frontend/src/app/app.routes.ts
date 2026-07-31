@@ -21,5 +21,11 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./features/nouvelle-recette/nouvelle-recette.component').then((m) => m.NouvelleRecetteComponent),
     canActivate: [authGuard]
+  },
+  {
+    path: 'recettes/:id',
+    loadComponent: () =>
+      import('./features/recette-detail/recette-detail.component').then((m) => m.RecetteDetailComponent),
+    canActivate: [authGuard]
   }
 ];

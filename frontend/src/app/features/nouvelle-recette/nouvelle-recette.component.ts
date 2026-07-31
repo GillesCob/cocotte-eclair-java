@@ -36,9 +36,9 @@ export class NouvelleRecetteComponent {
     const { titre, description, visibilite } = this.form.getRawValue();
 
     this.recetteService.create({ titre: titre!, description: description || null, visibilite: visibilite! }).subscribe({
-      next: () => {
+      next: (recette) => {
         this.isSubmitting.set(false);
-        this.router.navigate(['/recettes']);
+        this.router.navigate(['/recettes', recette.id]);
       },
       error: (err) => {
         this.isSubmitting.set(false);

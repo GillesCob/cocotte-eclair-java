@@ -1,0 +1,86 @@
+<div class="recette-detail-page">
+  @if (isLoading()) {
+    <p>Chargement...</p>
+  } @else if (!recette()) {
+    <p>Recette introuvable.</p>
+  } @else {
+    <a class="retour" routerLink="/recettes">&larr; Retour aux recettes</a>
+
+    <header>
+      <h1>{{ recette()!.titre }}</h1>
+      @if (recette()!.description) {
+        <p class="description">{{ recette()!.description }}</p>
+      }
+      <span class="badge">{{ recette()!.visibilite === 'PRIVEE' ? 'Privée' : 'Publique' }}</span>
+    </header>
+
+    <section>
+      <h2>Ingrédients</h2>
+
+      @if (recette()!.ingredients.length === 0) {
+        <p class="empty">Aucun ingrédient pour l'instant.</p>
+      } @else {
+        <ul>
+          @for (ingredient of recette()!.ingredients; track ingredient.id) {
+            <li>
+              <span>{{ ingredient.quantite }} {{ uniteLabel(ingredient.unite) }} — {{ ingredient.ingredientNom }}</span>
+              <button type="button" (click)="removeIngredient(ingredient.id)">Supprimer</button>
+            </li>
+          }
+        </ul>
+      }
+
+      <form class="inline-form" [formGroup]="ingredientForm" (ngSubmit)="addIngredient()">
+        <input type="text" formControlName="ingredientNom" placeholder="Nom de l'ingrédient" />
+        <input type="number" formControlName="quantite" placeholder="Quantité" step="0.01" min="0.01" />
+        <select formControlName="unite">
+          @for (option of uniteOptions; track option.value) {
+            <option [value]="option.value">{{ option.label }}</option>
+          }
+        </select>
+        <button type="submit" [disabled]="ingredientForm.invalid || isAddingIngredient()">
+          {{ isAddingIngredient() ? 'Ajout...' : 'Ajouter' }}
+        </button>
+      </form>
+
+      @if (ingredientError()) {
+        <p class="error">{{ ingredientError() }}</p>
+      }
+    </section>
+
+    <section>
+      <h2>Étapes</h2>
+
+      @if (recette()!.etapes.length === 0) {
+        <p class="empty">Aucune étape pour l'instant.</p>
+      } @else {
+        <ol>
+          @for (etape of recette()!.etapes; track etape.id) {
+            <li>
+              <span>
+                {{ etape.description }}
+                @if (etape.tempsCuissonMinutes) {
+                  <em>({{ etape.tempsCuissonMinutes }} min)</em>
+                }
+              </span>
+              <button type="button" (click)="removeEtape(etape.id)">Supprimer</button>
+            </li>
+          }
+        </ol>
+      }
+
+      <form class="inline-form" [formGroup]="etapeForm" (ngSubmit)="addEtape()">
+        <input type="number" formControlName="ordre" placeholder="N°" min="1" />
+        <input type="text" formControlName="description" placeholder="Description de l'étape" />
+        <input type="number" formControlName="tempsCuissonMinutes" placeholder="Temps (min, optionnel)" min="1" />
+        <button type="submit" [disabled]="etapeForm.invalid || isAddingEtape()">
+          {{ isAddingEtape() ? 'Ajout...' : 'Ajouter' }}
+        </button>
+      </form>
+
+      @if (etapeError()) {
+        <p class="error">{{ etapeError() }}</p>
+      }
+    </section>
+  }
+</div>

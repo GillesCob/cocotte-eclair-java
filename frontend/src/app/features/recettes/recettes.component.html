@@ -15,10 +15,12 @@
     <ul>
       @for (recette of recettes(); track recette.id) {
         <li>
-          <strong>{{ recette.titre }}</strong>
-          @if (recette.estRecetteDeBase) {
-            <span class="badge">Recette de base</span>
-          }
+          <a [routerLink]="['/recettes', recette.id]">
+            <strong>{{ recette.titre }}</strong>
+            @if (recette.estRecetteDeBase) {
+              <span class="badge">Recette de base</span>
+            }
+          </a>
         </li>
       }
     </ul>
