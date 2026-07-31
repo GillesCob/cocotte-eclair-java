@@ -71,6 +71,14 @@ export class RecetteService {
     return this.http.post<IRecette>(`${environment.apiUrl}/recettes`, request);
   }
 
+  update(id: string, request: IRecetteRequest): Observable<IRecette> {
+    return this.http.put<IRecette>(`${environment.apiUrl}/recettes/${id}`, request);
+  }
+
+  delete(id: string): Observable<void> {
+    return this.http.delete<void>(`${environment.apiUrl}/recettes/${id}`);
+  }
+
   addIngredient(recetteId: string, request: IRecetteIngredientRequest): Observable<IRecetteIngredient> {
     return this.http.post<IRecetteIngredient>(`${environment.apiUrl}/recettes/${recetteId}/ingredients`, request);
   }

@@ -7,7 +7,12 @@
     <a class="retour" routerLink="/recettes">&larr; Retour aux recettes</a>
 
     <header>
-      <h1>{{ recette()!.titre }}</h1>
+      <div class="header-top">
+        <h1>{{ recette()!.titre }}</h1>
+        @if (!isEditing()) {
+          <button type="button" class="btn btn-outline btn-sm" (click)="isEditing.set(true)">Modifier</button>
+        }
+      </div>
       @if (recette()!.description) {
         <p class="description">{{ recette()!.description }}</p>
       }
@@ -23,28 +28,32 @@
         <ul>
           @for (ingredient of recette()!.ingredients; track ingredient.id) {
             <li>
-              <span>{{ ingredient.quantite }} {{ uniteLabel(ingredient.unite) }} — {{ ingredient.ingredientNom }}</span>
-              <button type="button" (click)="removeIngredient(ingredient.id)">Supprimer</button>
+              <span>{{ ingredient.quantite }} {{ uniteLabel(ingredient.unite) }}, {{ ingredient.ingredientNom }}</span>
+              @if (isEditing()) {
+                <button type="button" (click)="removeIngredient(ingredient.id)">Supprimer</button>
+              }
             </li>
           }
         </ul>
       }
 
-      <form class="inline-form" [formGroup]="ingredientForm" (ngSubmit)="addIngredient()">
-        <input type="text" formControlName="ingredientNom" placeholder="Nom de l'ingrédient" />
-        <input type="number" formControlName="quantite" placeholder="Quantité" step="0.01" min="0.01" />
-        <select formControlName="unite">
-          @for (option of uniteOptions; track option.value) {
-            <option [value]="option.value">{{ option.label }}</option>
-          }
-        </select>
-        <button type="submit" class="btn btn-primary btn-sm" [disabled]="ingredientForm.invalid || isAddingIngredient()">
-          {{ isAddingIngredient() ? 'Ajout...' : 'Ajouter' }}
-        </button>
-      </form>
+      @if (isEditing()) {
+        <form class="inline-form" [formGroup]="ingredientForm" (ngSubmit)="addIngredient()">
+          <input type="text" formControlName="ingredientNom" placeholder="Nom de l'ingrédient" />
+          <input type="number" formControlName="quantite" placeholder="Quantité" step="0.01" min="0.01" />
+          <select formControlName="unite">
+            @for (option of uniteOptions; track option.value) {
+              <option [value]="option.value">{{ option.label }}</option>
+            }
+          </select>
+          <button type="submit" class="btn btn-primary btn-sm" [disabled]="ingredientForm.invalid || isAddingIngredient()">
+            {{ isAddingIngredient() ? 'Ajout...' : 'Ajouter' }}
+          </button>
+        </form>
 
-      @if (ingredientError()) {
-        <p class="error">{{ ingredientError() }}</p>
+        @if (ingredientError()) {
+          <p class="error" role="alert">{{ ingredientError() }}</p>
+        }
       }
     </section>
 
@@ -63,24 +72,40 @@
                   <em>({{ etape.tempsCuissonMinutes }} min)</em>
                 }
               </span>
-              <button type="button" (click)="removeEtape(etape.id)">Supprimer</button>
+              @if (isEditing()) {
+                <button type="button" (click)="removeEtape(etape.id)">Supprimer</button>
+              }
             </li>
           }
         </ol>
       }
 
-      <form class="inline-form" [formGroup]="etapeForm" (ngSubmit)="addEtape()">
-        <input type="number" formControlName="ordre" placeholder="N°" min="1" />
-        <input type="text" formControlName="description" placeholder="Description de l'étape" />
-        <input type="number" formControlName="tempsCuissonMinutes" placeholder="Temps (min, optionnel)" min="1" />
-        <button type="submit" class="btn btn-primary btn-sm" [disabled]="etapeForm.invalid || isAddingEtape()">
-          {{ isAddingEtape() ? 'Ajout...' : 'Ajouter' }}
-        </button>
-      </form>
+      @if (isEditing()) {
+        <form class="inline-form" [formGroup]="etapeForm" (ngSubmit)="addEtape()">
+          <input type="number" formControlName="ordre" placeholder="N°" min="1" />
+          <input type="text" formControlName="description" placeholder="Description de l'étape" />
+          <input type="number" formControlName="tempsCuissonMinutes" placeholder="Temps (min, optionnel)" min="1" />
+          <button type="submit" class="btn btn-primary btn-sm" [disabled]="etapeForm.invalid || isAddingEtape()">
+            {{ isAddingEtape() ? 'Ajout...' : 'Ajouter' }}
+          </button>
+        </form>
 
-      @if (etapeError()) {
-        <p class="error">{{ etapeError() }}</p>
+        @if (etapeError()) {
+          <p class="error" role="alert">{{ etapeError() }}</p>
+        }
       }
     </section>
+
+    @if (isEditing()) {
+      <section class="danger-zone">
+        <button type="button" class="btn btn-outline btn-sm" (click)="isEditing.set(false)">Terminer la modification</button>
+        <button type="button" class="delete-link" [disabled]="isDeleting()" (click)="deleteRecette()">
+          {{ isDeleting() ? 'Suppression...' : 'Supprimer la recette' }}
+        </button>
+        @if (deleteError()) {
+          <p class="error" role="alert">{{ deleteError() }}</p>
+        }
+      </section>
+    }
   }
 </div>

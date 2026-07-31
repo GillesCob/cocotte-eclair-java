@@ -1,7 +1,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { IEtape, IRecette, IRecetteIngredient, IUnite, RecetteService } from '../../core/recette.service';
 
 const UNITE_LABELS: Record<IUnite, string> = {
@@ -26,6 +26,7 @@ export class RecetteDetailComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly recetteService = inject(RecetteService);
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
 
   readonly uniteOptions = (Object.keys(UNITE_LABELS) as IUnite[]).map((value) => ({
     value,
@@ -34,6 +35,9 @@ export class RecetteDetailComponent implements OnInit {
 
   readonly recette = signal<IRecette | null>(null);
   readonly isLoading = signal(true);
+  readonly isEditing = signal(false);
+  readonly deleteError = signal<string | null>(null);
+  readonly isDeleting = signal(false);
 
   readonly ingredientError = signal<string | null>(null);
   readonly isAddingIngredient = signal(false);
@@ -151,6 +155,30 @@ export class RecetteDetailComponent implements OnInit {
         });
       },
       error: (err) => this.etapeError.set(err.error?.message ?? 'Une erreur est survenue')
+    });
+  }
+
+  deleteRecette(): void {
+    const current = this.recette();
+    if (!current) {
+      return;
+    }
+
+    if (!confirm(`Supprimer définitivement la recette "${current.titre}" ? Cette action est irréversible.`)) {
+      return;
+    }
+
+    this.deleteError.set(null);
+    this.isDeleting.set(true);
+
+    this.recetteService.delete(this.recetteId).subscribe({
+      next: () => {
+        this.router.navigate(['/recettes']);
+      },
+      error: (err) => {
+        this.isDeleting.set(false);
+        this.deleteError.set(err.error?.message ?? 'Une erreur est survenue');
+      }
     });
   }
 

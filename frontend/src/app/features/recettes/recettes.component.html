@@ -9,7 +9,7 @@
   @if (isLoading()) {
     <p>Chargement...</p>
   } @else if (recettes().length === 0) {
-    <p>Aucune recette pour l'instant.</p>
+    <p class="empty-state">Aucune recette pour l'instant.</p>
   } @else {
     <ul>
       @for (recette of recettes(); track recette.id) {

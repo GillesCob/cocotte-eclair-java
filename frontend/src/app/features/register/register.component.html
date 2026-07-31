@@ -21,7 +21,7 @@
       </div>
 
       @if (errorMessage()) {
-        <p class="error">{{ errorMessage() }}</p>
+        <p class="error" role="alert">{{ errorMessage() }}</p>
       }
 
       <button type="submit" class="btn btn-primary btn-block" [disabled]="form.invalid || isSubmitting()">

@@ -8,6 +8,13 @@
   header {
     margin-bottom: 1.5rem;
 
+    .header-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
     h1 {
       margin-bottom: 0.25rem;
     }
@@ -20,8 +27,8 @@
 
   .badge {
     font-size: 0.75rem;
-    color: #d97706;
-    border: 1px solid #d97706;
+    color: var(--accent);
+    border: 1px solid var(--accent);
     border-radius: 999px;
     padding: 0.125rem 0.5rem;
   }
@@ -91,5 +98,31 @@
     color: #dc2626;
     font-size: 0.875rem;
     margin-top: 0.5rem;
+  }
+
+  .danger-zone {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #e5e7eb;
+  }
+
+  .delete-link {
+    background: none;
+    border: none;
+    padding: 0;
+    color: #dc2626;
+    font-size: 0.875rem;
+    cursor: pointer;
+
+    &:hover:not(:disabled) {
+      text-decoration: underline;
+    }
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
   }
 }

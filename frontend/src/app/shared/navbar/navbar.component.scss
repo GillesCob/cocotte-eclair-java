@@ -34,7 +34,7 @@
     }
 
     &.active {
-      color: #d97706;
+      color: var(--accent);
       font-weight: 500;
     }
   }
