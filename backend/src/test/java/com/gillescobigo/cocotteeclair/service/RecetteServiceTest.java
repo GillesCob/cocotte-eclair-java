@@ -1,7 +1,12 @@
 package com.gillescobigo.cocotteeclair.service;
 
+import com.gillescobigo.cocotteeclair.dto.EtapeRequest;
+import com.gillescobigo.cocotteeclair.dto.RecetteIngredientRequest;
 import com.gillescobigo.cocotteeclair.dto.RecetteRequest;
+import com.gillescobigo.cocotteeclair.entity.Etape;
+import com.gillescobigo.cocotteeclair.entity.Ingredient;
 import com.gillescobigo.cocotteeclair.entity.Recette;
+import com.gillescobigo.cocotteeclair.entity.RecetteIngredient;
 import com.gillescobigo.cocotteeclair.entity.User;
 import com.gillescobigo.cocotteeclair.exception.ResourceNotFoundException;
 import com.gillescobigo.cocotteeclair.exception.UnauthorizedException;
@@ -118,5 +123,82 @@ class RecetteServiceTest {
 
         assertThatThrownBy(() -> recetteService.delete(recetteDeBase.getId(), proprietaire))
                 .isInstanceOf(UnauthorizedException.class);
+    }
+
+    @Test
+    void updateIngredient_parQuelquUnQuiNestPasProprietaire_leveUnauthorized() {
+        Recette recette = new Recette("Titre", "desc", proprietaire);
+        when(recetteRepository.findById(recette.getId())).thenReturn(Optional.of(recette));
+        RecetteIngredientRequest request = new RecetteIngredientRequest("Farine", 200.0, RecetteIngredient.Unite.GRAMME);
+
+        assertThatThrownBy(() -> recetteService.updateIngredient(recette.getId(), UUID.randomUUID(), request, autreUtilisateur))
+                .isInstanceOf(UnauthorizedException.class);
+    }
+
+    @Test
+    void updateIngredient_ligneDuneAutreRecette_leveResourceNotFound() {
+        Recette recette = new Recette("Titre", "desc", proprietaire);
+        Recette autreRecette = new Recette("Autre", "desc", proprietaire);
+        RecetteIngredient ligne = new RecetteIngredient(autreRecette, new Ingredient("Sucre"), 100.0, RecetteIngredient.Unite.GRAMME);
+        when(recetteRepository.findById(recette.getId())).thenReturn(Optional.of(recette));
+        when(recetteIngredientRepository.findById(ligne.getId())).thenReturn(Optional.of(ligne));
+        RecetteIngredientRequest request = new RecetteIngredientRequest("Farine", 200.0, RecetteIngredient.Unite.GRAMME);
+
+        assertThatThrownBy(() -> recetteService.updateIngredient(recette.getId(), ligne.getId(), request, proprietaire))
+                .isInstanceOf(ResourceNotFoundException.class);
+    }
+
+    @Test
+    void updateIngredient_parLeProprietaire_metAJourLesValeurs() {
+        Recette recette = new Recette("Titre", "desc", proprietaire);
+        RecetteIngredient ligne = new RecetteIngredient(recette, new Ingredient("Sucre"), 100.0, RecetteIngredient.Unite.GRAMME);
+        when(recetteRepository.findById(recette.getId())).thenReturn(Optional.of(recette));
+        when(recetteIngredientRepository.findById(ligne.getId())).thenReturn(Optional.of(ligne));
+        when(ingredientRepository.findByNomIgnoreCase("Farine")).thenReturn(Optional.of(new Ingredient("Farine")));
+        RecetteIngredientRequest request = new RecetteIngredientRequest("Farine", 250.0, RecetteIngredient.Unite.KILOGRAMME);
+
+        var response = recetteService.updateIngredient(recette.getId(), ligne.getId(), request, proprietaire);
+
+        assertThat(response.ingredientNom()).isEqualTo("Farine");
+        assertThat(response.quantite()).isEqualTo(250.0);
+        assertThat(response.unite()).isEqualTo(RecetteIngredient.Unite.KILOGRAMME);
+    }
+
+    @Test
+    void updateEtape_parQuelquUnQuiNestPasProprietaire_leveUnauthorized() {
+        Recette recette = new Recette("Titre", "desc", proprietaire);
+        when(recetteRepository.findById(recette.getId())).thenReturn(Optional.of(recette));
+        EtapeRequest request = new EtapeRequest(1, "Description", null);
+
+        assertThatThrownBy(() -> recetteService.updateEtape(recette.getId(), UUID.randomUUID(), request, autreUtilisateur))
+                .isInstanceOf(UnauthorizedException.class);
+    }
+
+    @Test
+    void updateEtape_etapeDuneAutreRecette_leveResourceNotFound() {
+        Recette recette = new Recette("Titre", "desc", proprietaire);
+        Recette autreRecette = new Recette("Autre", "desc", proprietaire);
+        Etape etape = new Etape(autreRecette, 1, "Description", null);
+        when(recetteRepository.findById(recette.getId())).thenReturn(Optional.of(recette));
+        when(etapeRepository.findById(etape.getId())).thenReturn(Optional.of(etape));
+        EtapeRequest request = new EtapeRequest(1, "Nouvelle description", null);
+
+        assertThatThrownBy(() -> recetteService.updateEtape(recette.getId(), etape.getId(), request, proprietaire))
+                .isInstanceOf(ResourceNotFoundException.class);
+    }
+
+    @Test
+    void updateEtape_parLeProprietaire_metAJourLesValeurs() {
+        Recette recette = new Recette("Titre", "desc", proprietaire);
+        Etape etape = new Etape(recette, 1, "Description initiale", null);
+        when(recetteRepository.findById(recette.getId())).thenReturn(Optional.of(recette));
+        when(etapeRepository.findById(etape.getId())).thenReturn(Optional.of(etape));
+        EtapeRequest request = new EtapeRequest(2, "Description modifiée", 15);
+
+        var response = recetteService.updateEtape(recette.getId(), etape.getId(), request, proprietaire);
+
+        assertThat(response.ordre()).isEqualTo(2);
+        assertThat(response.description()).isEqualTo("Description modifiée");
+        assertThat(response.tempsCuissonMinutes()).isEqualTo(15);
     }
 }

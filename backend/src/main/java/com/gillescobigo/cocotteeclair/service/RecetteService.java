@@ -128,6 +128,27 @@ public class RecetteService {
     }
 
     @Transactional
+    public RecetteIngredientResponse updateIngredient(UUID recetteId, UUID recetteIngredientId, RecetteIngredientRequest request, User currentUser) {
+        getOwnedOrVisible(recetteId, currentUser, true);
+
+        RecetteIngredient ri = recetteIngredientRepository.findById(recetteIngredientId)
+                .orElseThrow(() -> new ResourceNotFoundException("Ingrédient de recette introuvable"));
+
+        if (!ri.getRecette().getId().equals(recetteId)) {
+            throw new ResourceNotFoundException("Ingrédient de recette introuvable");
+        }
+
+        Ingredient ingredient = ingredientRepository.findByNomIgnoreCase(request.ingredientNom())
+                .orElseGet(() -> ingredientRepository.save(new Ingredient(request.ingredientNom())));
+
+        ri.setIngredient(ingredient);
+        ri.setQuantite(request.quantite());
+        ri.setUnite(request.unite());
+        recetteIngredientRepository.save(ri);
+        return RecetteIngredientResponse.from(ri);
+    }
+
+    @Transactional
     public EtapeResponse addEtape(UUID recetteId, EtapeRequest request, User currentUser) {
         Recette recette = getOwnedOrVisible(recetteId, currentUser, true);
         Etape etape = new Etape(recette, request.ordre(), request.description(), request.tempsCuissonMinutes());
@@ -147,6 +168,24 @@ public class RecetteService {
         }
 
         etapeRepository.delete(etape);
+    }
+
+    @Transactional
+    public EtapeResponse updateEtape(UUID recetteId, UUID etapeId, EtapeRequest request, User currentUser) {
+        getOwnedOrVisible(recetteId, currentUser, true);
+
+        Etape etape = etapeRepository.findById(etapeId)
+                .orElseThrow(() -> new ResourceNotFoundException("Étape introuvable"));
+
+        if (!etape.getRecette().getId().equals(recetteId)) {
+            throw new ResourceNotFoundException("Étape introuvable");
+        }
+
+        etape.setOrdre(request.ordre());
+        etape.setDescription(request.description());
+        etape.setTempsCuissonMinutes(request.tempsCuissonMinutes());
+        etapeRepository.save(etape);
+        return EtapeResponse.from(etape);
     }
 
     // requireOwnership=true : opérations d'écriture, seul le propriétaire (jamais une recette

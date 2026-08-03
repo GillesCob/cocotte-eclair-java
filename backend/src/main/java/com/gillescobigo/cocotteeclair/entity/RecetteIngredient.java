@@ -57,6 +57,10 @@ public class RecetteIngredient {
         return ingredient;
     }
 
+    public void setIngredient(Ingredient ingredient) {
+        this.ingredient = ingredient;
+    }
+
     public Double getQuantite() {
         return quantite;
     }

@@ -87,6 +87,16 @@ public class RecetteController {
         recetteService.removeIngredient(id, ingredientLineId, currentUser);
     }
 
+    @PutMapping("/{id}/ingredients/{ingredientLineId}")
+    public RecetteIngredientResponse updateIngredient(
+            @PathVariable UUID id,
+            @PathVariable UUID ingredientLineId,
+            @Valid @RequestBody RecetteIngredientRequest request,
+            @AuthenticationPrincipal User currentUser
+    ) {
+        return recetteService.updateIngredient(id, ingredientLineId, request, currentUser);
+    }
+
     @PostMapping("/{id}/etapes")
     @ResponseStatus(HttpStatus.CREATED)
     public EtapeResponse addEtape(
@@ -105,5 +115,15 @@ public class RecetteController {
             @AuthenticationPrincipal User currentUser
     ) {
         recetteService.removeEtape(id, etapeId, currentUser);
+    }
+
+    @PutMapping("/{id}/etapes/{etapeId}")
+    public EtapeResponse updateEtape(
+            @PathVariable UUID id,
+            @PathVariable UUID etapeId,
+            @Valid @RequestBody EtapeRequest request,
+            @AuthenticationPrincipal User currentUser
+    ) {
+        return recetteService.updateEtape(id, etapeId, request, currentUser);
     }
 }
