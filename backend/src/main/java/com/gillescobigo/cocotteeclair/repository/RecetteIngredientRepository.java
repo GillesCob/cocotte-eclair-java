@@ -8,4 +8,6 @@ import java.util.UUID;
 
 public interface RecetteIngredientRepository extends JpaRepository<RecetteIngredient, UUID> {
     List<RecetteIngredient> findByRecetteId(UUID recetteId);
+
+    void deleteByRecetteId(UUID recetteId);
 }

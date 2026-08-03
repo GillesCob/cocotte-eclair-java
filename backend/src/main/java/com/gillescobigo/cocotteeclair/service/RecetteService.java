@@ -77,6 +77,11 @@ public class RecetteService {
     @Transactional
     public void delete(UUID id, User currentUser) {
         Recette recette = getOwnedOrVisible(id, currentUser, true);
+        // Pas de cascade JPA/BDD sur ces deux tables (FK recette_id) : suppression
+        // explicite avant celle de la recette, sinon violation de contrainte
+        // referentielle des qu'au moins un ingredient/une etape existe.
+        recetteIngredientRepository.deleteByRecetteId(id);
+        etapeRepository.deleteByRecetteId(id);
         recetteRepository.delete(recette);
     }
 

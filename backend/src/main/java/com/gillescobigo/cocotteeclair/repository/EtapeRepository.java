@@ -8,4 +8,6 @@ import java.util.UUID;
 
 public interface EtapeRepository extends JpaRepository<Etape, UUID> {
     List<Etape> findByRecetteIdOrderByOrdreAsc(UUID recetteId);
+
+    void deleteByRecetteId(UUID recetteId);
 }
