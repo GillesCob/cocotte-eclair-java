@@ -87,11 +87,19 @@ export class RecetteService {
     return this.http.delete<void>(`${environment.apiUrl}/recettes/${recetteId}/ingredients/${ingredientLineId}`);
   }
 
+  updateIngredient(recetteId: string, ingredientLineId: string, request: IRecetteIngredientRequest): Observable<IRecetteIngredient> {
+    return this.http.put<IRecetteIngredient>(`${environment.apiUrl}/recettes/${recetteId}/ingredients/${ingredientLineId}`, request);
+  }
+
   addEtape(recetteId: string, request: IEtapeRequest): Observable<IEtape> {
     return this.http.post<IEtape>(`${environment.apiUrl}/recettes/${recetteId}/etapes`, request);
   }
 
   removeEtape(recetteId: string, etapeId: string): Observable<void> {
     return this.http.delete<void>(`${environment.apiUrl}/recettes/${recetteId}/etapes/${etapeId}`);
+  }
+
+  updateEtape(recetteId: string, etapeId: string, request: IEtapeRequest): Observable<IEtape> {
+    return this.http.put<IEtape>(`${environment.apiUrl}/recettes/${recetteId}/etapes/${etapeId}`, request);
   }
 }

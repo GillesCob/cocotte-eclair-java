@@ -7,63 +7,47 @@
     <a class="retour" routerLink="/recettes">&larr; Retour aux recettes</a>
 
     <header>
-      <div class="header-top">
-        <h1>{{ recette()!.titre }}</h1>
-        @if (!isEditing()) {
-          <button type="button" class="btn btn-outline btn-sm" (click)="isEditing.set(true)">Modifier</button>
-        }
-      </div>
-      @if (recette()!.description) {
-        <p class="description">{{ recette()!.description }}</p>
-      }
-      <span class="badge">{{ recette()!.visibilite === 'PRIVEE' ? 'Privée' : 'Publique' }}</span>
+      <h1><button type="button" class="text-trigger" (click)="openTitreModal()" aria-label="Modifier le titre">{{ recette()!.titre }}</button></h1>
+      <p class="description">
+        <button type="button" class="text-trigger" (click)="openDescriptionModal()" aria-label="Modifier la description">
+          {{ recette()!.description || 'Ajouter une description' }}
+        </button>
+      </p>
+      <button type="button" class="badge badge-trigger" (click)="openVisibiliteModal()" aria-label="Modifier la visibilité">
+        {{ recette()!.visibilite === 'PRIVEE' ? 'Privée' : 'Publique' }}
+      </button>
     </header>
 
     <section>
-      <h2>Ingrédients</h2>
+      <div class="section-head"><h2>Ingrédients</h2></div>
 
-      @if (recette()!.ingredients.length === 0) {
-        <p class="empty">Aucun ingrédient pour l'instant.</p>
-      } @else {
-        <ul>
-          @for (ingredient of recette()!.ingredients; track ingredient.id) {
-            <li>
-              <span>{{ ingredient.quantite }} {{ uniteLabel(ingredient.unite) }}, {{ ingredient.ingredientNom }}</span>
-              @if (isEditing()) {
-                <button type="button" (click)="removeIngredient(ingredient.id)">Supprimer</button>
-              }
-            </li>
-          }
-        </ul>
-      }
-
-      @if (isEditing()) {
-        <form class="inline-form" [formGroup]="ingredientForm" (ngSubmit)="addIngredient()">
-          <input type="text" formControlName="ingredientNom" placeholder="Nom de l'ingrédient" />
-          <input type="number" formControlName="quantite" placeholder="Quantité" step="0.01" min="0.01" />
-          <select formControlName="unite">
-            @for (option of uniteOptions; track option.value) {
-              <option [value]="option.value">{{ option.label }}</option>
-            }
-          </select>
-          <button type="submit" class="btn btn-primary btn-sm" [disabled]="ingredientForm.invalid || isAddingIngredient()">
-            {{ isAddingIngredient() ? 'Ajout...' : 'Ajouter' }}
-          </button>
-        </form>
-
-        @if (ingredientError()) {
-          <p class="error" role="alert">{{ ingredientError() }}</p>
+      <div class="ingredient-grid">
+        @for (ingredient of recette()!.ingredients; track ingredient.id) {
+          <div class="ingredient-card">
+            <div class="card-actions">
+              <button type="button" class="icon-btn icon-btn-edit" (click)="openEditIngredientModal(ingredient)" attr.aria-label="Modifier l'ingrédient {{ ingredient.ingredientNom }}">
+                <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M13.586 3.586a2 2 0 1 1 2.828 2.828l-8.5 8.5a2 2 0 0 1-.878.506l-3 .857a.5.5 0 0 1-.618-.618l.857-3a2 2 0 0 1 .506-.878l8.5-8.5Z"/></svg>
+              </button>
+            </div>
+            <div class="card-body">
+              <div class="nom">{{ ingredient.ingredientNom }}</div>
+              <div class="quantite">{{ ingredient.quantite }}{{ uniteAbbr(ingredient.unite) ? ' ' + uniteAbbr(ingredient.unite) : '' }}</div>
+            </div>
+          </div>
         }
-      }
+        <button type="button" class="add-card" (click)="openAddIngredientModal()">
+          <span class="plus">+</span><span>Ajouter</span>
+        </button>
+      </div>
     </section>
 
     <section>
-      <h2>Étapes</h2>
+      <div class="section-head"><h2>Étapes</h2></div>
 
       @if (recette()!.etapes.length === 0) {
         <p class="empty">Aucune étape pour l'instant.</p>
       } @else {
-        <ol>
+        <ol class="etapes-list">
           @for (etape of recette()!.etapes; track etape.id) {
             <li>
               <span>
@@ -72,40 +56,180 @@
                   <em>({{ etape.tempsCuissonMinutes }} min)</em>
                 }
               </span>
-              @if (isEditing()) {
-                <button type="button" (click)="removeEtape(etape.id)">Supprimer</button>
-              }
+              <div class="line-actions">
+                <button type="button" class="icon-btn icon-btn-edit" (click)="openEditEtapeModal(etape)" attr.aria-label="Modifier l'étape {{ etape.ordre }}">
+                  <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M13.586 3.586a2 2 0 1 1 2.828 2.828l-8.5 8.5a2 2 0 0 1-.878.506l-3 .857a.5.5 0 0 1-.618-.618l.857-3a2 2 0 0 1 .506-.878l8.5-8.5Z"/></svg>
+                  <span class="btn-label">Modifier</span>
+                </button>
+              </div>
             </li>
           }
         </ol>
       }
 
-      @if (isEditing()) {
-        <form class="inline-form" [formGroup]="etapeForm" (ngSubmit)="addEtape()">
-          <input type="number" formControlName="ordre" placeholder="N°" min="1" />
-          <input type="text" formControlName="description" placeholder="Description de l'étape" />
-          <input type="number" formControlName="tempsCuissonMinutes" placeholder="Temps (min, optionnel)" min="1" />
-          <button type="submit" class="btn btn-primary btn-sm" [disabled]="etapeForm.invalid || isAddingEtape()">
-            {{ isAddingEtape() ? 'Ajout...' : 'Ajouter' }}
-          </button>
-        </form>
-
-        @if (etapeError()) {
-          <p class="error" role="alert">{{ etapeError() }}</p>
-        }
-      }
+      <button type="button" class="add-etape-btn" (click)="openAddEtapeModal()">
+        <span class="plus">+</span> Ajouter une étape
+      </button>
     </section>
 
-    @if (isEditing()) {
-      <section class="danger-zone">
-        <button type="button" class="btn btn-outline btn-sm" (click)="isEditing.set(false)">Terminer la modification</button>
-        <button type="button" class="delete-link" [disabled]="isDeleting()" (click)="deleteRecette()">
-          {{ isDeleting() ? 'Suppression...' : 'Supprimer la recette' }}
-        </button>
-        @if (deleteError()) {
-          <p class="error" role="alert">{{ deleteError() }}</p>
+    <section class="danger-zone">
+      <button type="button" class="delete-link" (click)="openDeleteRecetteModal()">Supprimer la recette</button>
+    </section>
+  }
+
+  @if (activeModal()) {
+    <div class="modal-backdrop open" (click)="onBackdropClick($event)">
+      <div class="modal" role="dialog" aria-modal="true">
+        @switch (activeModal()) {
+          @case ('titre') {
+            <h2>Modifier le titre</h2>
+            <form [formGroup]="titreForm" (ngSubmit)="saveTitre()">
+              <input type="text" formControlName="titre" required />
+              <div class="modal-actions">
+                <button type="button" class="btn btn-outline btn-sm" (click)="closeModal()">Annuler</button>
+                <button type="submit" class="btn btn-primary btn-sm" [disabled]="titreForm.invalid || isSaving()">
+                  {{ isSaving() ? 'Enregistrement...' : 'Enregistrer' }}
+                </button>
+              </div>
+              @if (modalError()) { <p class="error" role="alert">{{ modalError() }}</p> }
+            </form>
+          }
+          @case ('description') {
+            <h2>Modifier la description</h2>
+            <form [formGroup]="descriptionForm" (ngSubmit)="saveDescription()">
+              <textarea formControlName="description" rows="3"></textarea>
+              <div class="modal-actions">
+                <button type="button" class="btn btn-outline btn-sm" (click)="closeModal()">Annuler</button>
+                <button type="submit" class="btn btn-primary btn-sm" [disabled]="isSaving()">
+                  {{ isSaving() ? 'Enregistrement...' : 'Enregistrer' }}
+                </button>
+              </div>
+              @if (modalError()) { <p class="error" role="alert">{{ modalError() }}</p> }
+            </form>
+          }
+          @case ('visibilite') {
+            <h2>Modifier la visibilité</h2>
+            <form [formGroup]="visibiliteForm" (ngSubmit)="saveVisibilite()">
+              <label class="radio-line"><input type="radio" formControlName="visibilite" value="PRIVEE" /> Privée</label>
+              <label class="radio-line"><input type="radio" formControlName="visibilite" value="PUBLIQUE" /> Publique</label>
+              <div class="modal-actions">
+                <button type="button" class="btn btn-outline btn-sm" (click)="closeModal()">Annuler</button>
+                <button type="submit" class="btn btn-primary btn-sm" [disabled]="visibiliteForm.invalid || isSaving()">
+                  {{ isSaving() ? 'Enregistrement...' : 'Enregistrer' }}
+                </button>
+              </div>
+              @if (modalError()) { <p class="error" role="alert">{{ modalError() }}</p> }
+            </form>
+          }
+          @case ('add-ingredient') {
+            <h2>Ajouter un ingrédient</h2>
+            <form [formGroup]="ingredientForm" (ngSubmit)="submitIngredientModal()">
+              <input type="text" formControlName="ingredientNom" placeholder="Nom de l'ingrédient" />
+              <input type="number" formControlName="quantite" placeholder="Quantité" step="0.01" min="0.01" />
+              <select formControlName="unite">
+                @for (option of uniteOptions; track option.value) {
+                  <option [value]="option.value">{{ option.label }}</option>
+                }
+              </select>
+              <div class="modal-actions">
+                <button type="button" class="btn btn-outline btn-sm" (click)="closeModal()">Annuler</button>
+                <button type="submit" class="btn btn-primary btn-sm" [disabled]="ingredientForm.invalid || isSaving()">
+                  {{ isSaving() ? 'Ajout...' : 'Ajouter' }}
+                </button>
+              </div>
+              @if (modalError()) { <p class="error" role="alert">{{ modalError() }}</p> }
+            </form>
+          }
+          @case ('edit-ingredient') {
+            <h2>Modifier l'ingrédient</h2>
+            <form [formGroup]="ingredientForm" (ngSubmit)="submitIngredientModal()">
+              <input type="text" formControlName="ingredientNom" placeholder="Nom de l'ingrédient" />
+              <input type="number" formControlName="quantite" placeholder="Quantité" step="0.01" min="0.01" />
+              <select formControlName="unite">
+                @for (option of uniteOptions; track option.value) {
+                  <option [value]="option.value">{{ option.label }}</option>
+                }
+              </select>
+              <div class="modal-actions modal-actions-split">
+                <button type="button" class="modal-delete-link" (click)="openDeleteIngredientModal(targetIngredient()!)">Supprimer</button>
+                <span class="modal-actions-right">
+                  <button type="button" class="btn btn-outline btn-sm" (click)="closeModal()">Annuler</button>
+                  <button type="submit" class="btn btn-primary btn-sm" [disabled]="ingredientForm.invalid || isSaving()">
+                    {{ isSaving() ? 'Enregistrement...' : 'Enregistrer' }}
+                  </button>
+                </span>
+              </div>
+              @if (modalError()) { <p class="error" role="alert">{{ modalError() }}</p> }
+            </form>
+          }
+          @case ('delete-ingredient') {
+            <h2>Supprimer ?</h2>
+            <p class="modal-hint">Supprimer l'ingrédient « {{ targetIngredient()?.ingredientNom }} » ? Cette action est irréversible.</p>
+            <div class="modal-actions">
+              <button type="button" class="btn btn-outline btn-sm" (click)="closeModal()">Annuler</button>
+              <button type="button" class="btn btn-danger btn-sm" [disabled]="isSaving()" (click)="confirmDeleteIngredient()">
+                {{ isSaving() ? 'Suppression...' : 'Supprimer' }}
+              </button>
+            </div>
+            @if (modalError()) { <p class="error" role="alert">{{ modalError() }}</p> }
+          }
+          @case ('add-etape') {
+            <h2>Ajouter une étape</h2>
+            <form [formGroup]="etapeForm" (ngSubmit)="submitEtapeModal()">
+              <input type="number" formControlName="ordre" placeholder="N°" min="1" />
+              <input type="text" formControlName="description" placeholder="Description de l'étape" />
+              <input type="number" formControlName="tempsCuissonMinutes" placeholder="Temps (min, optionnel)" min="1" />
+              <div class="modal-actions">
+                <button type="button" class="btn btn-outline btn-sm" (click)="closeModal()">Annuler</button>
+                <button type="submit" class="btn btn-primary btn-sm" [disabled]="etapeForm.invalid || isSaving()">
+                  {{ isSaving() ? 'Ajout...' : 'Ajouter' }}
+                </button>
+              </div>
+              @if (modalError()) { <p class="error" role="alert">{{ modalError() }}</p> }
+            </form>
+          }
+          @case ('edit-etape') {
+            <h2>Modifier l'étape</h2>
+            <form [formGroup]="etapeForm" (ngSubmit)="submitEtapeModal()">
+              <input type="number" formControlName="ordre" placeholder="N°" min="1" />
+              <input type="text" formControlName="description" placeholder="Description de l'étape" />
+              <input type="number" formControlName="tempsCuissonMinutes" placeholder="Temps (min, optionnel)" min="1" />
+              <div class="modal-actions modal-actions-split">
+                <button type="button" class="modal-delete-link" (click)="openDeleteEtapeModal(targetEtape()!)">Supprimer</button>
+                <span class="modal-actions-right">
+                  <button type="button" class="btn btn-outline btn-sm" (click)="closeModal()">Annuler</button>
+                  <button type="submit" class="btn btn-primary btn-sm" [disabled]="etapeForm.invalid || isSaving()">
+                    {{ isSaving() ? 'Enregistrement...' : 'Enregistrer' }}
+                  </button>
+                </span>
+              </div>
+              @if (modalError()) { <p class="error" role="alert">{{ modalError() }}</p> }
+            </form>
+          }
+          @case ('delete-etape') {
+            <h2>Supprimer ?</h2>
+            <p class="modal-hint">Supprimer l'étape {{ targetEtape()?.ordre }} ? Cette action est irréversible.</p>
+            <div class="modal-actions">
+              <button type="button" class="btn btn-outline btn-sm" (click)="closeModal()">Annuler</button>
+              <button type="button" class="btn btn-danger btn-sm" [disabled]="isSaving()" (click)="confirmDeleteEtape()">
+                {{ isSaving() ? 'Suppression...' : 'Supprimer' }}
+              </button>
+            </div>
+            @if (modalError()) { <p class="error" role="alert">{{ modalError() }}</p> }
+          }
+          @case ('delete-recette') {
+            <h2>Supprimer ?</h2>
+            <p class="modal-hint">Supprimer définitivement la recette « {{ recette()?.titre }} » ? Cette action est irréversible.</p>
+            <div class="modal-actions">
+              <button type="button" class="btn btn-outline btn-sm" (click)="closeModal()">Annuler</button>
+              <button type="button" class="btn btn-danger btn-sm" [disabled]="isSaving()" (click)="confirmDeleteRecette()">
+                {{ isSaving() ? 'Suppression...' : 'Supprimer' }}
+              </button>
+            </div>
+            @if (modalError()) { <p class="error" role="alert">{{ modalError() }}</p> }
+          }
         }
-      </section>
-    }
+      </div>
+    </div>
   }
 </div>
