@@ -28,6 +28,10 @@ jobs:
       - name: Install
         run: npm ci
 
+      # Audit de securite des dependances (harnais de tests, point 3) : bloque sur haute/critique.
+      - name: Audit des dependances
+        run: npm audit --audit-level=high
+
       - name: Test
         run: npm test -- --watch=false --browsers=ChromeHeadless
 
